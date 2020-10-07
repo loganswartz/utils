@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -e "$1" ]; then
+	explorer.exe "$(wslpath -w $(realpath $1))"
+else
+	explorer.exe "$1"
+fi
+exit 0
