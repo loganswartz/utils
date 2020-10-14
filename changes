@@ -1,0 +1,44 @@
+#!/bin/bash
+
+while [ "$#" != 0 ]; do
+	case $1 in
+		-s|--short) SHORT=1; shift ;;
+		-q|--quiet) QUIET=1; shift ;;
+		-sq) SHORT=1; QUIET=1; shift ;;
+		*) echo "Unknown parameter: $1"; exit 1 ;;
+	esac
+	shift
+done
+
+print () {
+	# use like echo, will not echo anything if -q is passed to the script
+	if [ "$QUIET" != 1 ]; then
+		echo $@
+	fi
+}
+
+dirty=()
+repos=()
+for folder in */; do
+	if [ "$(git -C $folder rev-parse --is-inside-work-tree 2> /dev/null)" == "true" ]; then
+		repos+=("$folder")
+		if [ "$(git -C $folder status -s)" != "" ]; then
+			dirty+=("$folder");
+		fi;
+	fi;
+done
+
+if [ ${#repos[@]} == 0 ]; then
+	print "No repos found."
+elif [ ${#dirty[@]} != 0 ]; then
+	for folder in ${dirty[@]}; do
+		if [ "$SHORT" == 1 ]; then
+			echo $(echo $folder | sed 's/.$//');
+		else
+			echo $(echo $folder | sed 's/.$/:/');
+			git -C $folder status -s | sed 's/^/  /'
+		fi
+	done
+else
+	print "All repos are clean."
+fi
