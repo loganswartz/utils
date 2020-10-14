@@ -36,7 +36,7 @@ elif [ ${#dirty[@]} != 0 ]; then
 			echo $(echo $folder | sed 's/.$//');
 		else
 			echo $(echo $folder | sed 's/.$/:/');
-			git -C $folder status -s | sed 's/^/  /'
+			git -C $folder -c color.status=always status -s | sed 's/^/  /'
 		fi
 	done
 else
